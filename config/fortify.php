@@ -130,7 +130,24 @@ return [
     |
     */
 
-    'views' => true,
+    /*
+    |--------------------------------------------------------------------------
+    | Disabling Views
+    |--------------------------------------------------------------------------
+    |
+    | By default, Fortify defines routes that are intended to return views, such as a login screen or registration screen.
+    | However, if you are building a JavaScript driven single-page application, you may not need these routes.
+    | For that reason, you may disable these routes entirely by setting the views configuration value within your
+    | application's config/fortify.php configuration file to false.
+    |
+    | If you choose to disable Fortify's views and you will be implementing password reset features for your application,
+    | you should still define a route named password.reset that is responsible for displaying your application's "reset password" view.
+    | This is necessary because Laravel's Illuminate\Auth\Notifications\ResetPassword notification will
+    | generate the password reset URL via the password.reset named route.
+    |
+    */
+
+    'views' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -146,7 +163,7 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        // Features::emailVerification(),
+        Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
         Features::twoFactorAuthentication([
