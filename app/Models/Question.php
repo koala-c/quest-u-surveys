@@ -10,15 +10,18 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'type']; // Add 'type' for different question types
+    protected $fillable = [
+        'content',
+        'type'
+    ];
 
     public function survey()
     {
         return $this->belongsTo(Survey::class);
     }
 
-    public function answerOptions()
+    public function response()
     {
-        return $this->hasMany(AnswerOption::class);
+        return $this->hasMany(Response::class);
     }
 }

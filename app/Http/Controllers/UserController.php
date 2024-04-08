@@ -32,8 +32,9 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            // 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'location' => ['required', 'string', 'max:255']
         ]);
 
         $user = User::create($data);
@@ -51,7 +52,7 @@ class UserController extends Controller
 
         $data = $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,' . $id,
+            // 'email' => 'required|email|unique:users,email,' . $id,
             // Puedes agregar más validaciones según tus necesidades
         ]);
 
@@ -77,7 +78,8 @@ class UserController extends Controller
     {
         try {
             $credentials = $request->validate([
-                'email' => ['required', 'string', 'email'],
+                // 'email' => ['required', 'string', 'email'],
+                'name' => ['required', 'string'],
                 'password' => ['required', 'string'],
             ]);
 
@@ -90,7 +92,7 @@ class UserController extends Controller
             } else {
                 // Autenticación fallida
                 throw ValidationException::withMessages([
-                    'email' => trans('auth.failed'),
+                    'name' => trans('auth.failed'),
                 ]);
             }
         } catch (\Exception $e) {

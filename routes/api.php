@@ -31,8 +31,8 @@ Route::delete('/delete-user/{id}', [UserController::class, 'destroy']);
 Route::delete('/login', [UserController::class, 'login']);
 
 // Surveys
-Route::get('/surveys', 'SurveyController@index');
-Route::get('/surveys/{survey}', 'SurveyController@show')->where('survey', '[0-9]+'); // Route with ID constraint
+Route::get('/surveys', [SurveyController::class, 'index']);
+Route::get('/surveys/{survey}', [SurveyController::class, 'show'])->where('survey', '[0-9]+'); // Route with ID constraint
 
 // Questions (within Surveys)
 Route::get('/surveys/{survey}/questions', 'QuestionController@index')->where('survey', '[0-9]+'); // List questions for a survey

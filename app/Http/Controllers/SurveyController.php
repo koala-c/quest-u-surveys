@@ -10,31 +10,62 @@ class SurveyController extends Controller
     public function index()
     {
         $surveys = Survey::all();
-        return view('surveys.index', compact('surveys'));
+        return response()->json($surveys, 200);
     }
 
-    public function show(Survey $survey) // Route with survey parameter
+    public function show($id)
     {
-        $survey->load('questions.answerOptions'); // Eager load questions and options
-        return view('surveys.show', compact('survey'));
+        $survey = Survey::find($id);
+
+        if (!$survey) {
+            return response()->json(['message' => 'Encuesta no encontrada'], 404);
+        }
+
+        return response()->json($survey, 200);
     }
 
     public function store(Request $request)
     {
-        return Survey::create($request->all());
+        $data = $request->validate([
+            'description' => ['required', 'string'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+        ]);
+
+        $survey = Survey::create($data);
+
+        return response()->json($survey, 201);
     }
 
     public function update(Request $request, $id)
     {
-        $survey = Survey::findOrFail($id);
-        $survey->update($request->all());
-        return $survey;
+        $survey = Survey::find($id);
+
+        if (!$survey) {
+            return response()->json(['message' => 'Encuesta no encontrada'], 404);
+        }
+
+        $data = $request->validate([
+            'description' => ['required', 'string'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+        ]);
+
+        $survey->update($data);
+
+        return response()->json($survey, 200);
     }
 
     public function destroy($id)
     {
-        $survey = Survey::findOrFail($id);
+        $survey = Survey::find($id);
+
+        if (!$survey) {
+            return response()->json(['message' => 'Encuesta no encontrada'], 404);
+        }
+
         $survey->delete();
-        return 204;
+
+        return response()->json(['message' => 'Encuesta eliminada correctamente'], 200);
     }
 }
