@@ -23,6 +23,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Backend basics
+Route::post('/login', [UserController::class, 'login']); // POST /login amb paràmetres (user, password)
+
+Route::get('/enquesta', [SurveyController::class, 'index']); // GET /enquesta -> Retorna totes les enquestes.
+Route::get('/enquesta/{userid}', [SurveyController::class, 'userSurveys']); // GET /enquesta/{userid} -> Retorna totes les enquestes associades a un usuari i que són vàlides (data validesa > datanow())
+Route::get('/preguntes/{enquestaid}', [QuestionController::class, 'index']); // GET /preguntes/{enquestaid}->Retorna totes les preguntes de l'enquesta i el seu tipus
+Route::post('/preguntes', [ResponseController::class, 'submitAnswers']); // POST /preguntes amb paràmetres (totes les respostes a les preguntes)
+
+// Users, enquestadors
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/get-user/{id}', [UserController::class, 'show']);
 Route::post('/create-user', [UserController::class, 'store']);
