@@ -8,20 +8,15 @@ use App\Models\AnswerOption; // Include AnswerOption model for relationship
 
 class Question extends Model
 {
-    use HasFactory;
+    public $timestamps = false;
+
+    protected $table = "pregunta";
+
+    protected $primaryKey = 'codipregunta';
 
     protected $fillable = [
-        'content',
-        'type'
+        'enunciat',
+        'tipuspregunta',
+        'codienquesta',
     ];
-
-    public function survey()
-    {
-        return $this->belongsTo(Survey::class);
-    }
-
-    public function response()
-    {
-        return $this->hasMany(Response::class);
-    }
 }

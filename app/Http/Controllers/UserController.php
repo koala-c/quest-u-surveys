@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\Controller;
-use Illuminate\Validation\Rules;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -31,15 +32,18 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'nom' => ['required', 'string', 'max:255'],
             // 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'location' => ['required', 'string', 'max:255']
+            'contrasenya' => ['required'],
+            'localitzacio' => ['required', 'string', 'max:255']
         ]);
+
+        // Hash the password before storing it
+        $data['contrasenya'] = Hash::make($data['contrasenya']);
 
         $user = User::create($data);
 
-        return response()->json($user, 201);
+        return response()->json($user, 200);
     }
 
     public function update(Request $request, $id)
@@ -51,10 +55,16 @@ class UserController extends Controller
         }
 
         $data = $request->validate([
-            'name' => 'required',
+            'nom' => 'required',
+            'contrasenya' => 'required',
+            'localitzacio' => 'required',
             // 'email' => 'required|email|unique:users,email,' . $id,
-            // Puedes agregar más validaciones según tus necesidades
         ]);
+
+        // Hash the password before updating it
+        if (isset($data['contrasenya'])) {
+            $data['contrasenya'] = Hash::make($data['contrasenya']);
+        }
 
         $user->update($data);
 
@@ -76,28 +86,61 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
+        // S'han de tenir tots els usuaris amb la mateixa encriptació, si no no funciona
         try {
             $credentials = $request->validate([
                 // 'email' => ['required', 'string', 'email'],
-                'name' => ['required', 'string'],
-                'password' => ['required', 'string'],
+                'nom' => ['required', 'string'],
+                'contrasenya' => ['required', 'string'],
             ]);
 
-            // Intentar autenticar al usuario
-            if (Auth::attempt($credentials)) {
-                // Autenticación exitosa, obtener el usuario autenticado
-                $user = Auth::user();
+            // Retrieve the user by username
+            $user = User::where('nom', $credentials['nom'])->first();
 
+            // Check if the user exists and if the password matches
+            if ($user && Hash::check($credentials['contrasenya'], $user->contrasenya)) {
                 return response()->json($user, 200);
             } else {
-                // Autenticación fallida
                 throw ValidationException::withMessages([
-                    'name' => trans('auth.failed'),
+                    'error' => 'Invalid username or password.',
                 ]);
             }
         } catch (\Exception $e) {
-            // Manejar excepciones aquí
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function logout(Request $request)
+    {
+        try {
+            Auth::logout(); // Cerrar sesión del usuario
+            return response()->json(['message' => 'Logout successful.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // Funcionament amb JWT (JSON Web Token)
+    // public function login(Request $request)
+    // {
+    //     $credentials = $request->only('nom', 'contrasenya');
+
+    //     if (!auth()->attempt($credentials)) {
+    //         throw ValidationException::withMessages([
+    //             'error' => ['Credenciales inválidas'],
+    //         ]);
+    //     }
+
+    //     // Autenticación exitosa, generar un token JWT
+    //     $token = auth()->attempt($credentials);
+    //     return response()->json(['token' => $token]);
+    // }
+
+    // public function logout()
+    // {
+    //     auth()->logout();
+
+    //     return response()->json(['message' => 'Sesión cerrada correctamente']);
+    // }
+
 }

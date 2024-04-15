@@ -7,26 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Response extends Model
 {
+    public $timestamps = false;
     use HasFactory;
 
+    protected $table = 'resposta';
+    protected $primaryKey = 'codiresposta';
+
     protected $fillable = [
-        'answer',
-        'answer_date',
-        'question_id'
+        'resposta',
+        'dataresposta',
+        'codipregunta'
     ];
 
-    // public function survey()
-    // {
-    //     return $this->belongsTo(Survey::class);
-    // }
-
+    // Define la relación entre la respuesta y la pregunta
     public function question()
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class, 'codipregunta', 'codipregunta');
     }
-
-    // public function answerOption()
-    // {
-    //     return $this->belongsTo(AnswerOption::class);
-    // }
 }

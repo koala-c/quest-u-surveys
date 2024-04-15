@@ -8,23 +8,26 @@ use App\Models\Question;
 
 class Survey extends Model
 {
-    use HasFactory;
+    public $timestamps = false;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'enquesta';
+    protected $table = "enquesta";
+
+    protected $primaryKey = 'codienquesta';
 
     protected $fillable = [
-        'description',
-        'start_date',
-        'end_date'
+        'descenquesta',
+        'datavalidesaenq',
+        'datacreacioenq',
+        'codienquestador',
     ];
 
+    /**
+     * Get the questions associated with the survey.
+     */
     public function questions()
     {
-        return $this->hasMany(Question::class);
+        return $this->hasMany(Question::class, 'codienquesta');
     }
 }
+
+

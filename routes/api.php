@@ -19,33 +19,39 @@ use App\Http\Controllers\ResponseController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Backend basics
-Route::post('/login', [UserController::class, 'login']); // POST /login amb paràmetres (user, password)
-
-Route::get('/enquesta', [SurveyController::class, 'index']); // GET /enquesta -> Retorna totes les enquestes.
-Route::get('/enquesta/{userid}', [SurveyController::class, 'userSurveys']); // GET /enquesta/{userid} -> Retorna totes les enquestes associades a un usuari i que són vàlides (data validesa > datanow())
-Route::get('/preguntes/{enquestaid}', [QuestionController::class, 'index']); // GET /preguntes/{enquestaid}->Retorna totes les preguntes de l'enquesta i el seu tipus
-Route::post('/preguntes', [ResponseController::class, 'submitAnswers']); // POST /preguntes amb paràmetres (totes les respostes a les preguntes)
-
-// Users, enquestadors
+// Enquestador Endpoints
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/get-user/{id}', [UserController::class, 'show']);
 Route::post('/create-user', [UserController::class, 'store']);
 Route::put('/update-user/{id}', [UserController::class, 'update']);
 Route::delete('/delete-user/{id}', [UserController::class, 'destroy']);
-Route::delete('/login', [UserController::class, 'login']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:api');
 
-// Surveys
+// Enquesta Endpoints
 Route::get('/surveys', [SurveyController::class, 'index']);
-Route::get('/surveys/{survey}', [SurveyController::class, 'show'])->where('survey', '[0-9]+'); // Route with ID constraint
+Route::get('/get-survey/{id}', [SurveyController::class, 'show']);
+Route::get('/get-survey-user/{userid}', [SurveyController::class, 'showFromUser']);
+Route::post('/create-survey', [SurveyController::class, 'store']);
+Route::put('/update-survey/{id}', [SurveyController::class, 'update']);
+Route::delete('/delete-survey/{id}', [SurveyController::class, 'destroy']);
 
-// Questions (within Surveys)
-Route::get('/surveys/{survey}/questions', 'QuestionController@index')->where('survey', '[0-9]+'); // List questions for a survey
-Route::post('/surveys/{survey}/questions', 'QuestionController@store')->where('survey', '[0-9]+'); // Create a question for a survey
+// Pregunta Endpoints
+Route::get('/questions', [QuestionController::class, 'index']);
+Route::get('/get-question/{id}', [QuestionController::class, 'show']);
+Route::get('/get-question-survey/{surveyid}', [QuestionController::class, 'showFromSurvey']);
+Route::post('/create-question', [QuestionController::class, 'store']);
+Route::put('/update-question/{id}', [QuestionController::class, 'update']);
+Route::delete('/delete-question/{id}', [QuestionController::class, 'destroy']);
 
-// Answer Options (within Questions)
-Route::post('/questions/{question}/answer-options', 'AnswerOptionController@store')->where('question', '[0-9]+'); // Create an answer option for a question
+// Resposta Endpoints
+Route::get('/responses', [ResponseController::class, 'index']);
+Route::get('/get-response/{id}', [ResponseController::class, 'show']);
+Route::get('/get-response-survey/{surveyid}', [ResponseController::class, 'showFromSurvey']);
+Route::post('/create-response', [ResponseController::class, 'store']);
+Route::put('/update-response/{id}', [ResponseController::class, 'update']);
+Route::delete('/delete-response/{id}', [ResponseController::class, 'destroy']);

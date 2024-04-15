@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Survey;
+use Carbon\Carbon; // Serveix per treballar amb dates
 use Illuminate\Http\Request;
 
 class SurveyController extends Controller
@@ -24,12 +25,23 @@ class SurveyController extends Controller
         return response()->json($survey, 200);
     }
 
+    public function showFromUser($userid) {
+        $now = Carbon::now(); // Obté la data i hora actual
+
+        $surveys = Survey::where('codienquestador', $userid)
+                    ->where('datavalidesaenq', '>', $now) // Filtra per data de validesa major que ara
+                    ->get();
+
+        return response()->json($surveys, 200);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
-            'description' => ['required', 'string'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date'],
+            'descenquesta' => ['required', 'string'],
+            'datavalidesaenq' => ['required', 'date'],
+            'datacreacioenq' => ['required', 'date'],
+            'codienquestador' => ['required', 'integer'],
         ]);
 
         $survey = Survey::create($data);
@@ -46,9 +58,10 @@ class SurveyController extends Controller
         }
 
         $data = $request->validate([
-            'description' => ['required', 'string'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date'],
+            'descenquesta' => ['required', 'string'],
+            'datavalidesaenq' => ['required', 'date'],
+            'datacreacioenq' => ['required', 'date'],
+            'codienquestador' => ['required', 'integer'],
         ]);
 
         $survey->update($data);

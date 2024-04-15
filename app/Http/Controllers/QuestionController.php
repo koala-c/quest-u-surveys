@@ -8,16 +8,77 @@ use App\Models\Question;
 
 class QuestionController extends Controller
 {
-    public function create(Survey $survey) // Route with survey parameter
+    public function index()
     {
-        return view('questions.create', compact('survey'));
+        $questions = Question::all();
+        return response()->json($questions, 200);
     }
 
-    public function store(Request $request, Survey $survey) // Route with survey parameter
+    public function show($id)
     {
-        $question = $survey->questions()->create($request->all());
-        return redirect()->route('surveys.show', $survey->id); // Redirect after creation
+        $question = Question::find($id);
+
+        if (!$question) {
+            return response()->json(['message' => 'Pregunta no encontrada'], 404);
+        }
+
+        return response()->json($question, 200);
     }
 
-    // Add more methods as needed (edit, delete questions)
+    public function showFromSurvey($surveyid)
+    {
+        // Find the survey by its ID
+        $survey = Survey::findOrFail($surveyid);
+
+        // Retrieve all questions associated with the survey
+        $questions = $survey->questions; // Accessing the questions relationship
+
+        // Return the questions along with their types
+        return response()->json($questions, 200);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'enunciat' => ['required', 'string', 'max:255'],
+            'tipuspregunta' => ['required'],
+            'codienquesta' => ['required', 'integer']
+        ]);
+
+        $question = Question::create($data);
+
+        return response()->json($question, 200);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $question = Question::find($id);
+
+        if (!$question) {
+            return response()->json(['message' => 'Pregunta no encontrada'], 404);
+        }
+
+        $data = $request->validate([
+            'enunciat' => 'required',
+            'tipuspregunta' => 'required',
+            'codienquesta' => 'required',
+        ]);
+
+        $question->update($data);
+
+        return response()->json($question, 200);
+    }
+
+    public function destroy($id)
+    {
+        $question = Question::find($id);
+
+        if (!$question) {
+            return response()->json(['message' => 'Pregunta no encontrada'], 404);
+        }
+
+        $question->delete();
+
+        return response()->json(['message' => 'Pregunta eliminada correctamente'], 200);
+    }
 }
