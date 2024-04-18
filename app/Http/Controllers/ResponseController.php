@@ -52,9 +52,9 @@ class ResponseController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'codipregunta' => ['required', 'integer'],
             'resposta' => ['required', 'string'],
             'dataresposta' => ['required', 'date'],
-            'codipregunta' => ['required', 'integer'],
         ]);
         try {
             $response = Response::create($data);

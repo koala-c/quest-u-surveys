@@ -16,7 +16,14 @@ class Question extends Model
 
     protected $fillable = [
         'enunciat',
-        'tipuspregunta',
+        'coditipus',
         'codienquesta',
+        'esopcio'
     ];
+
+    public function answerOptions()
+    {
+        return $this->belongsToMany(AnswerOption::class, 'pregunta_tipus_opcio', 'codipregunta', 'codiresposta')
+                    ->withPivot('descripcio');
+    }
 }

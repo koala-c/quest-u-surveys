@@ -7,6 +7,7 @@ use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\AnswerOptionController;
 use App\Http\Controllers\ResponseController;
+use App\Http\Middleware\CheckTokenExpiration;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +31,8 @@ Route::post('/create-user', [UserController::class, 'store']);
 Route::put('/update-user/{id}', [UserController::class, 'update']);
 Route::delete('/delete-user/{id}', [UserController::class, 'destroy']);
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:api');
+Route::post('/verify-auth', [UserController::class, 'verifyAuth'])->middleware(CheckTokenExpiration::class);
+Route::post('/logout', [UserController::class, 'logout'])->middleware(CheckTokenExpiration::class);
 
 // Enquesta Endpoints
 Route::get('/surveys', [SurveyController::class, 'index']);
@@ -47,6 +49,7 @@ Route::get('/get-question-survey/{surveyid}', [QuestionController::class, 'showF
 Route::post('/create-question', [QuestionController::class, 'store']);
 Route::put('/update-question/{id}', [QuestionController::class, 'update']);
 Route::delete('/delete-question/{id}', [QuestionController::class, 'destroy']);
+Route::get('/questions/{questionid}/answer-options', [QuestionController::class, 'answerOptions']);
 
 // Resposta Endpoints
 Route::get('/responses', [ResponseController::class, 'index']);
@@ -55,3 +58,12 @@ Route::get('/get-response-survey/{surveyid}', [ResponseController::class, 'showF
 Route::post('/create-response', [ResponseController::class, 'store']);
 Route::put('/update-response/{id}', [ResponseController::class, 'update']);
 Route::delete('/delete-response/{id}', [ResponseController::class, 'destroy']);
+
+// Tipus opció Endpoints
+Route::get('/answer-options', [AnswerOptionController::class, 'index']);
+Route::get('/get-answer-option/{id}', [AnswerOptionController::class, 'show']);
+Route::post('/create-answer-option', [AnswerOptionController::class, 'store']);
+Route::put('/update-answer-option/{id}', [AnswerOptionController::class, 'update']);
+Route::delete('/delete-answer-option/{id}', [AnswerOptionController::class, 'destroy']);
+
+// Localització Endpoints

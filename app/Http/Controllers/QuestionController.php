@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Survey;
 use App\Models\Question;
+use \Illuminate\Support\Facades\DB;
 
 class QuestionController extends Controller
 {
@@ -41,13 +42,18 @@ class QuestionController extends Controller
     {
         $data = $request->validate([
             'enunciat' => ['required', 'string', 'max:255'],
-            'tipuspregunta' => ['required'],
-            'codienquesta' => ['required', 'integer']
+            'coditipus' => ['required', 'integer'],
+            'codienquesta' => ['required', 'integer'],
+            'esopcio' => ['required', 'boolean']
         ]);
 
-        $question = Question::create($data);
+        try {
+            $question = Question::create($data);
 
-        return response()->json($question, 200);
+            return response()->json($question, 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -60,8 +66,9 @@ class QuestionController extends Controller
 
         $data = $request->validate([
             'enunciat' => 'required',
-            'tipuspregunta' => 'required',
+            'coditipus' => 'required',
             'codienquesta' => 'required',
+            'esopcio' => 'required',
         ]);
 
         $question->update($data);
@@ -81,4 +88,23 @@ class QuestionController extends Controller
 
         return response()->json(['message' => 'Pregunta eliminada correctamente'], 200);
     }
+
+    public function answerOptions($questionid)
+    {
+        try {
+            // Obté les opcions de resposta per a la pregunta amb l'identificador questionid
+            $answerOptions = DB::table('opcio_resposta')
+                ->select('descripcio')
+                ->join('pregunta_opcio_resposta', 'opcio_resposta.codiopcio', '=', 'pregunta_opcio_resposta.codiopcio')
+                ->where('pregunta_opcio_resposta.codipregunta', $questionid)
+                ->get();
+
+            // Retorna les opcions de resposta com a resposta de l'endpoint
+            return response()->json($answerOptions);
+        } catch (\Exception $e) {
+            // En cas d'error, retorna una resposta d'error
+            return response()->json(['error' => 'No s\'han pogut obtenir les opcions de resposta.'], 500);
+        }
+    }
+
 }
